@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройка Syrve - Интеграция</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active {
+            background: #4caf50;
+        }
+
+        .status-inactive {
+            background: #f44336;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .success-message, .error-message, .info-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .info-message {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .success-message.show, .error-message.show, .info-message.show {
+            display: block;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .webhook-url {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .steps {
+            counter-reset: step-counter;
+            list-style: none;
+        }
+
+        .steps li {
+            counter-increment: step-counter;
+            margin-bottom: 20px;
+            padding-left: 50px;
+            position: relative;
+        }
+
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .test-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Интеграция с Syrve</h1>
+            <p>Настройте автоматическую синхронизацию заказов и клиентов</p>
+        </div>
+
+        <div class="success-message" id="successMessage"></div>
+        <div class="error-message" id="errorMessage"></div>
+        <div class="info-message" id="infoMessage"></div>
+
+        <!-- Статус интеграции -->
+        <div class="card">
+            <h2>Статус интеграции</h2>
+            <p>
+                <span class="status-indicator" id="statusIndicator"></span>
+                <strong id="statusText">Проверка...</strong>
+            </p>
+            <p id="statusDetails" style="margin-top: 10px; color: #666;"></p>
+        </div>
+
+        <!-- Настройка вебхука -->
+        <div class="card">
+            <h2>Шаг 1: Настройка вебхука в Syrve</h2>
+
+            <div style="margin-bottom: 20px;">
+                <p><strong>URL вашего вебхука:</strong></p>
+                <div class="webhook-url" id="webhookUrl">Загрузка...</div>
+            </div>
+
+            <ol class="steps">
+                <li>Войдите в <a href="https://office.syrve.ru/" target="_blank">Syrve Office</a></li>
+                <li>Перейдите в раздел <strong>Настройки → API → Вебхуки</strong></li>
+                <li>Скопируйте URL вебхука сверху</li>
+                <li>Добавьте URL в настройки Syrve</li>
+                <li>Выберите типы событий: <strong>DeliveryOrderUpdate</strong> и <strong>DeliveryOrderError</strong></li>
+                <li>Нажмите кнопку ниже для проверки настройки</li>
+            </ol>
+
+            <button class="btn btn-primary" onclick="setupWebhook()">Настроить вебхук автоматически</button>
+        </div>
+
+        <!-- Тестирование -->
+        <div class="card">
+            <h2>Шаг 2: Тестирование интеграции</h2>
+
+            <div class="test-section">
+                <h3 style="margin-bottom: 15px;">Проверка настроек вебхука</h3>
+                <button class="btn btn-secondary" onclick="checkWebhookSettings()">Проверить настройки</button>
+                <div id="webhookSettingsResult" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="test-section" style="margin-top: 20px;">
+                <h3 style="margin-bottom: 15px;">Ручная обработка заказа</h3>
+                <div class="form-group">
+                    <label for="testOrderId">ID заказа из Syrve:</label>
+                    <input type="text" id="testOrderId" placeholder="Введите ID заказа">
+                </div>
+                <button class="btn btn-secondary" onclick="processTestOrder()">Обработать заказ</button>
+                <div id="testOrderResult" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="test-section" style="margin-top: 20px;">
+                <h3 style="margin-bottom: 15px;">Синхронизация клиента</h3>
+                <div class="form-group">
+                    <label for="testCustomerId">ID клиента из Syrve:</label>
+                    <input type="text" id="testCustomerId" placeholder="Введите ID клиента">
+                </div>
+                <button class="btn btn-secondary" onclick="syncTestCustomer()">Синхронизировать</button>
+                <div id="testCustomerResult" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- Инструкции -->
+        <div class="card">
+            <h2>Как работает интеграция</h2>
+
+            <h3 style="margin: 20px 0 10px; color: #667eea;">Автоматическая синхронизация заказов:</h3>
+            <ol style="line-height: 1.8;">
+                <li>Клиент делает заказ в Syrve</li>
+                <li>Syrve отправляет вебхук на ваш сервер</li>
+                <li>Система автоматически находит клиента по телефону или email</li>
+                <li>Создается транзакция с суммой заказа</li>
+                <li>Скидка рассчитывается и применяется автоматически</li>
+                <li>При достижении нового уровня, карта в телефоне клиента обновляется</li>
+            </ol>
+
+            <h3 style="margin: 20px 0 10px; color: #667eea;">Поддерживаемые события:</h3>
+            <ul style="line-height: 1.8;">
+                <li><strong>DeliveryOrderUpdate</strong> - обновление статуса заказа (обрабатываются закрытые заказы)</li>
+                <li><strong>DeliveryOrderError</strong> - ошибки заказа (логируются)</li>
+            </ul>
+
+            <h3 style="margin: 20px 0 10px; color: #667eea;">Настройка API:</h3>
+            <p>Добавьте в файл <code>.env</code>:</p>
+            <div class="code-block">
+SYRVE_API_LOGIN=ваш_api_login
+SYRVE_ORGANIZATION_ID=ваш_organization_id
+            </div>
+            <p style="margin-top: 10px; color: #666;">После изменения перезапустите сервер: <code>npm start</code></p>
+        </div>
+
+        <!-- Навигация -->
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="/admin" class="btn btn-secondary" style="display: inline-block; text-decoration: none;">← Вернуться в админ-панель</a>
+        </div>
+    </div>
+
+    <script>
+        // Проверка статуса интеграции
+        async function checkStatus() {
+            const baseUrl = window.location.origin;
+            const webhookUrl = `${baseUrl}/api/syrve/webhook`;
+
+            document.getElementById('webhookUrl').textContent = webhookUrl;
+
+            try {
+                const response = await fetch('/api/syrve/webhook-settings');
+
+                if (response.ok) {
+                    document.getElementById('statusIndicator').className = 'status-indicator status-active';
+                    document.getElementById('statusText').textContent = 'Интеграция настроена';
+                    document.getElementById('statusDetails').textContent = 'Вебхуки настроены и работают';
+                } else if (response.status === 503) {
+                    document.getElementById('statusIndicator').className = 'status-indicator status-inactive';
+                    document.getElementById('statusText').textContent = 'Интеграция не настроена';
+                    document.getElementById('statusDetails').textContent = 'Добавьте SYRVE_API_LOGIN и SYRVE_ORGANIZATION_ID в файл .env';
+                } else {
+                    throw new Error('Ошибка проверки статуса');
+                }
+            } catch (error) {
+                document.getElementById('statusIndicator').className = 'status-indicator status-inactive';
+                document.getElementById('statusText').textContent = 'Ошибка подключения';
+                document.getElementById('statusDetails').textContent = error.message;
+            }
+        }
+
+        // Настройка вебхука
+        async function setupWebhook() {
+            showMessage('info', 'Настройка вебхука...');
+
+            try {
+                const response = await fetch('/api/syrve/setup-webhook', { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('success', `✅ ${data.message}\nURL: ${data.webhookUrl}`);
+                    checkStatus();
+                } else {
+                    throw new Error(data.error || 'Ошибка настройки вебхука');
+                }
+            } catch (error) {
+                showMessage('error', error.message);
+            }
+        }
+
+        // Проверка настроек вебхука
+        async function checkWebhookSettings() {
+            showMessage('info', 'Проверка настроек...');
+
+            try {
+                const response = await fetch('/api/syrve/webhook-settings');
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('webhookSettingsResult').innerHTML = `
+                        <div class="code-block">${JSON.stringify(data, null, 2)}</div>
+                    `;
+                    showMessage('success', 'Настройки получены успешно');
+                } else {
+                    throw new Error(data.error || 'Ошибка получения настроек');
+                }
+            } catch (error) {
+                showMessage('error', error.message);
+                document.getElementById('webhookSettingsResult').textContent = '';
+            }
+        }
+
+        // Тестовая обработка заказа
+        async function processTestOrder() {
+            const orderId = document.getElementById('testOrderId').value.trim();
+
+            if (!orderId) {
+                showMessage('error', 'Введите ID заказа');
+                return;
+            }
+
+            showMessage('info', 'Обработка заказа...');
+
+            try {
+                const response = await fetch(`/api/syrve/process-order/${orderId}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('testOrderResult').innerHTML = `
+                        <div class="code-block">${JSON.stringify(data.result, null, 2)}</div>
+                    `;
+                    showMessage('success', data.message);
+                } else {
+                    throw new Error(data.error || 'Ошибка обработки заказа');
+                }
+            } catch (error) {
+                showMessage('error', error.message);
+                document.getElementById('testOrderResult').textContent = '';
+            }
+        }
+
+        // Тестовая синхронизация клиента
+        async function syncTestCustomer() {
+            const customerId = document.getElementById('testCustomerId').value.trim();
+
+            if (!customerId) {
+                showMessage('error', 'Введите ID клиента');
+                return;
+            }
+
+            showMessage('info', 'Синхронизация клиента...');
+
+            try {
+                const response = await fetch(`/api/syrve/sync-customer/${customerId}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('testCustomerResult').innerHTML = `
+                        <div class="code-block">${JSON.stringify(data.user, null, 2)}</div>
+                    `;
+                    showMessage('success', data.message);
+                } else {
+                    throw new Error(data.error || 'Ошибка синхронизации');
+                }
+            } catch (error) {
+                showMessage('error', error.message);
+                document.getElementById('testCustomerResult').textContent = '';
+            }
+        }
+
+        // Вспомогательные функции
+        function showMessage(type, message) {
+            hideAllMessages();
+
+            const elementId = type === 'success' ? 'successMessage' : type === 'error' ? 'errorMessage' : 'infoMessage';
+            const element = document.getElementById(elementId);
+
+            element.textContent = message;
+            element.classList.add('show');
+
+            if (type !== 'info') {
+                setTimeout(() => {
+                    element.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        function hideAllMessages() {
+            document.getElementById('successMessage').classList.remove('show');
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('infoMessage').classList.remove('show');
+        }
+
+        // Проверка статуса при загрузке
+        checkStatus();
+    </script>
+</body>
+</html>

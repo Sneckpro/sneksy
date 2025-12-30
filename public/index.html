@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Программа лояльности</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .discount-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .discount-info h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .discount-levels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .discount-levels div {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .success-message h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .success-message p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .wallet-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .wallet-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .apple-wallet {
+            background: #000;
+        }
+
+        .apple-wallet:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        .google-wallet {
+            background: #4285f4;
+        }
+
+        .google-wallet:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .user-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-info h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .user-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .card-number {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🍽️ Добро пожаловать!</h1>
+            <p>Программа лояльности</p>
+        </div>
+
+        <div class="discount-info">
+            <h3>🎁 Ваши преимущества:</h3>
+            <div class="discount-levels">
+                <div>При регистрации: <strong>3%</strong></div>
+                <div>После 40,000₽: <strong>5%</strong></div>
+                <div>После 100,000₽: <strong>10%</strong></div>
+                <div>После 200,000₽: <strong>15%</strong></div>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="first_name">Имя</label>
+                <input type="text" id="first_name" name="first_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="last_name">Фамилия</label>
+                <input type="text" id="last_name" name="last_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Телефон</label>
+                <input type="tel" id="phone" name="phone" placeholder="+7 (999) 123-45-67" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Зарегистрироваться</button>
+        </form>
+
+        <div class="success-message" id="successMessage">
+            <div class="success-icon">✅</div>
+            <h2>Регистрация успешна!</h2>
+
+            <div class="user-info" id="userInfo"></div>
+
+            <p>Ваша карта лояльности готова! Выберите кошелёк для добавления:</p>
+
+            <div class="wallet-buttons">
+                <a href="#" id="appleWalletBtn" class="wallet-btn apple-wallet" target="_blank">
+                    Apple Wallet
+                </a>
+                <a href="#" id="googleWalletBtn" class="wallet-btn google-wallet" target="_blank">
+                    Google Wallet
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('registrationForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const appleWalletBtn = document.getElementById('appleWalletBtn');
+        const googleWalletBtn = document.getElementById('googleWalletBtn');
+        const userInfo = document.getElementById('userInfo');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = form.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Регистрация...';
+
+            const formData = {
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ошибка при регистрации');
+                }
+
+                // Показываем информацию о пользователе
+                userInfo.innerHTML = `
+                    <h3>Ваши данные:</h3>
+                    <p><strong>Имя:</strong> ${data.user.first_name} ${data.user.last_name}</p>
+                    <p><strong>Email:</strong> ${data.user.email}</p>
+                    <p><strong>Скидка:</strong> ${data.user.discount_percent}%</p>
+                    <div class="card-number">Номер карты: ${data.user.pass_serial}</div>
+                `;
+
+                // Устанавливаем ссылки на кошельки
+                if (data.user.apple_pass_url) {
+                    appleWalletBtn.href = data.user.apple_pass_url;
+                } else {
+                    appleWalletBtn.style.display = 'none';
+                }
+
+                if (data.user.google_pass_url) {
+                    googleWalletBtn.href = data.user.google_pass_url;
+                } else {
+                    googleWalletBtn.style.display = 'none';
+                }
+
+                // Показываем сообщение об успехе
+                form.style.display = 'none';
+                successMessage.classList.add('show');
+
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.classList.add('show');
+
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 5000);
+
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Зарегистрироваться';
+            }
+        });
+
+        // Форматирование номера телефона
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.startsWith('7') || value.startsWith('8')) {
+                value = value.substring(1);
+            }
+            if (value.length > 0) {
+                value = '+7 ' + value;
+            }
+            if (value.length > 6) {
+                value = value.slice(0, 6) + ' ' + value.slice(6);
+            }
+            if (value.length > 10) {
+                value = value.slice(0, 10) + ' ' + value.slice(10);
+            }
+            if (value.length > 13) {
+                value = value.slice(0, 13) + ' ' + value.slice(13, 15);
+            }
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>
