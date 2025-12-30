@@ -1,6 +1,12 @@
-# Электронный кошелёк для ресторана
+# 🍽️ Электронный кошелёк для ресторана
 
-Система накопительных карт лояльности с интеграцией Apple Wallet и Google Wallet.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
+Полнофункциональная система накопительных карт лояльности с интеграцией Apple Wallet, Google Wallet и кассовой системы Syrve (iiko).
+
+[🚀 Демо](https://lachrymose-virilocally-markus.ngrok-free.dev) | [📖 Документация](#документация) | [🐛 Сообщить об ошибке](https://github.com/Sneckpro/sneksy/issues)
 
 ## Возможности
 
@@ -284,32 +290,72 @@ wallet_app/
 
 ## Развертывание
 
-### На VPS/Dedicated Server
+### 🚀 Быстрый старт с ngrok (для тестирования)
 
-1. Клонируйте репозиторий
-2. Установите Node.js
-3. Настройте .env
-4. Запустите через PM2:
-   ```bash
-   npm install -g pm2
-   pm2 start server.js --name wallet-app
-   pm2 save
-   pm2 startup
-   ```
-5. Настройте Nginx как reverse proxy
-6. Получите SSL сертификат (Let's Encrypt)
+```bash
+# 1. Установите ngrok
+brew install ngrok/ngrok/ngrok
 
-### С Docker
+# 2. Получите токен: https://dashboard.ngrok.com/get-started/your-authtoken
+ngrok config add-authtoken YOUR_TOKEN
 
-```dockerfile
-FROM node:18
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY . .
-EXPOSE 3000
-CMD ["node", "server.js"]
+# 3. Запустите сервер
+npm start
+
+# 4. В другом терминале запустите ngrok
+ngrok http 3000
+
+# 5. Обновите BASE_URL в .env на полученный URL
+# Например: https://abc-123.ngrok-free.dev
 ```
+
+**Готово!** Ваш сайт доступен в интернете через HTTPS! 🎉
+
+Подробнее: [DEPLOYMENT.md](DEPLOYMENT.md)
+
+### 💻 Продакшен на VPS
+
+**Рекомендуемые провайдеры:**
+- [DigitalOcean](https://digitalocean.com) ($5/мес)
+- [Timeweb](https://timeweb.com) (от 299₽/мес)
+- [Vultr](https://vultr.com) ($5/мес)
+
+**Быстрая установка (Ubuntu 22.04):**
+
+```bash
+# Установка Node.js и зависимостей
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs git
+
+# Клонирование и настройка
+git clone https://github.com/Sneckpro/sneksy.git
+cd sneksy
+npm install
+cp .env.example .env
+nano .env  # Заполните настройки
+
+# PM2 для автозапуска
+sudo npm install -g pm2
+pm2 start server.js --name wallet-app
+pm2 startup
+pm2 save
+
+# Nginx + SSL
+sudo apt install nginx certbot python3-certbot-nginx -y
+# Настройте Nginx (см. DEPLOYMENT.md)
+sudo certbot --nginx -d your-domain.com
+```
+
+Полная инструкция: [DEPLOYMENT.md](DEPLOYMENT.md)
+
+### ☁️ Автоматический деплой
+
+**Railway.app / Render.com:**
+1. Подключите GitHub репозиторий
+2. Настройте переменные окружения
+3. Деплой происходит автоматически
+
+Подробнее: [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## Поддержка
 
