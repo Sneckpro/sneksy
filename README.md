@@ -1,59 +1,59 @@
-# 🍽️ Электронный кошелёк для ресторана
+# Restaurant Digital Wallet
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-Полнофункциональная система накопительных карт лояльности с интеграцией Apple Wallet, Google Wallet и кассовой системы Syrve (iiko).
+Full-featured loyalty card system with Apple Wallet, Google Wallet integration and Syrve (iiko) POS system integration.
 
-[🚀 Демо](https://lachrymose-virilocally-markus.ngrok-free.dev) | [📖 Документация](#документация) | [🐛 Сообщить об ошибке](https://github.com/Sneckpro/sneksy/issues)
+[📖 Documentation](#documentation) | [🐛 Report Bug](https://github.com/Sneckpro/sneksy/issues)
 
-## Возможности
+## Features
 
-- Регистрация клиентов через веб-форму
-- Автоматическая генерация карт для Apple Wallet и Google Wallet
-- Накопительная система скидок:
-  - При регистрации: **3%**
-  - После 40,000₽: **5%**
-  - После 100,000₽: **10%**
-  - После 200,000₽: **15%**
-- Админ-панель для управления транзакциями
-- QR-коды для быстрой регистрации
-- База данных пользователей и транзакций
-- Автоматическое обновление карт при изменении уровня скидки
+- Customer registration via web form
+- Automatic card generation for Apple Wallet and Google Wallet
+- Tiered discount system:
+  - On registration: **3%**
+  - After $400 spent: **5%**
+  - After $1,000 spent: **10%**
+  - After $2,000 spent: **15%**
+- Admin panel for transaction management
+- QR codes for quick registration
+- User and transaction database
+- Automatic card updates when discount level changes
 
-## Технологии
+## Technologies
 
 - **Backend**: Node.js, Express.js
-- **База данных**: SQLite (легко мигрировать на PostgreSQL)
+- **Database**: SQLite (easy to migrate to PostgreSQL)
 - **Apple Wallet**: passkit-generator
 - **Google Wallet**: Google Wallet API
 - **Frontend**: Vanilla JavaScript, CSS
 
-## Установка
+## Installation
 
-### 1. Установка зависимостей
+### 1. Install Dependencies
 
 ```bash
 cd wallet_app
 npm install
 ```
 
-### 2. Настройка переменных окружения
+### 2. Configure Environment Variables
 
-Создайте файл `.env` на основе `.env.example`:
+Create a `.env` file based on `.env.example`:
 
 ```bash
 cp .env.example .env
 ```
 
-Заполните переменные в `.env`:
+Fill in the variables in `.env`:
 
 ```env
 PORT=3000
 DB_PATH=./database.sqlite
 
-# Конфигурация Apple Wallet
+# Apple Wallet Configuration
 APPLE_TEAM_IDENTIFIER=YOUR_TEAM_ID
 APPLE_PASS_TYPE_IDENTIFIER=pass.com.yourrestaurant.loyalty
 APPLE_WWDR_CERTIFICATE_PATH=./certs/WWDR.pem
@@ -61,38 +61,38 @@ APPLE_SIGNER_CERTIFICATE_PATH=./certs/signerCert.pem
 APPLE_SIGNER_KEY_PATH=./certs/signerKey.pem
 APPLE_SIGNER_KEY_PASSPHRASE=your_passphrase
 
-# Конфигурация Google Wallet
+# Google Wallet Configuration
 GOOGLE_ISSUER_ID=YOUR_ISSUER_ID
 GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
 GOOGLE_SERVICE_ACCOUNT_KEY_PATH=./certs/google-service-account.json
 
-# Конфигурация ресторана
-RESTAURANT_NAME=Ваш Ресторан
-RESTAURANT_DESCRIPTION=Программа лояльности
+# Restaurant Configuration
+RESTAURANT_NAME=Your Restaurant
+RESTAURANT_DESCRIPTION=Loyalty Program
 BASE_URL=http://localhost:3000
 ```
 
-### 3. Настройка Apple Wallet
+### 3. Apple Wallet Setup
 
-Для работы с Apple Wallet необходимо:
+To work with Apple Wallet you need:
 
-1. **Apple Developer Account** (платный, $99/год)
-2. **Создать Pass Type ID**:
-   - Перейдите в [Apple Developer Portal](https://developer.apple.com/account)
+1. **Apple Developer Account** (paid, $99/year)
+2. **Create Pass Type ID**:
+   - Go to [Apple Developer Portal](https://developer.apple.com/account)
    - Certificates, Identifiers & Profiles → Identifiers → Pass Type IDs
-   - Создайте новый Pass Type ID (например: `pass.com.yourrestaurant.loyalty`)
+   - Create a new Pass Type ID (e.g., `pass.com.yourrestaurant.loyalty`)
 
-3. **Создать сертификаты**:
+3. **Create certificates**:
    ```bash
    mkdir certs
    ```
 
-4. **Получить сертификаты**:
-   - **WWDR Certificate**: Скачайте с [Apple PKI](https://www.apple.com/certificateauthority/)
-   - **Pass Type Certificate**: Создайте в Apple Developer Portal
-   - **Private Key**: Экспортируйте из Keychain Access
+4. **Obtain certificates**:
+   - **WWDR Certificate**: Download from [Apple PKI](https://www.apple.com/certificateauthority/)
+   - **Pass Type Certificate**: Create in Apple Developer Portal
+   - **Private Key**: Export from Keychain Access
 
-5. **Конвертировать сертификаты в PEM формат**:
+5. **Convert certificates to PEM format**:
    ```bash
    # WWDR Certificate
    openssl x509 -inform DER -outform PEM -in AppleWWDRCA.cer -out ./certs/WWDR.pem
@@ -102,272 +102,206 @@ BASE_URL=http://localhost:3000
    openssl pkcs12 -in Certificates.p12 -nocerts -out ./certs/signerKey.pem
    ```
 
-6. **Создать папку модели pass**:
+6. **Create pass model folder**:
    ```bash
    mkdir -p apple-pass-model
    ```
 
-7. **Добавить файл pass.json** в папку `apple-pass-model/`:
+7. **Add pass.json file** to the `apple-pass-model/` folder:
    ```json
    {
      "formatVersion": 1,
      "passTypeIdentifier": "pass.com.yourrestaurant.loyalty",
      "teamIdentifier": "YOUR_TEAM_ID",
-     "logoText": "Ваш Ресторан",
-     "description": "Программа лояльности",
-     "organizationName": "Ваш Ресторан"
+     "logoText": "Your Restaurant",
+     "description": "Loyalty Program",
+     "organizationName": "Your Restaurant"
    }
    ```
 
-8. **Добавить изображения** в папку `apple-pass-model/`:
+8. **Add images** to the `apple-pass-model/` folder:
    - `logo.png` (320x100px)
    - `logo@2x.png` (640x200px)
    - `icon.png` (58x58px)
    - `icon@2x.png` (116x116px)
 
-### 4. Настройка Google Wallet
+### 4. Google Wallet Setup
 
-1. **Создать проект в Google Cloud Console**:
-   - Перейдите в [Google Cloud Console](https://console.cloud.google.com)
-   - Создайте новый проект
+1. **Create a project in Google Cloud Console**:
+   - Go to [Google Cloud Console](https://console.cloud.google.com)
+   - Create a new project
 
-2. **Включить Google Wallet API**:
+2. **Enable Google Wallet API**:
    - APIs & Services → Enable APIs and Services
-   - Найдите "Google Wallet API" и включите
+   - Search for "Google Wallet API" and enable it
 
-3. **Создать Service Account**:
+3. **Create Service Account**:
    - IAM & Admin → Service Accounts
-   - Создайте новый Service Account
-   - Выдайте роль "Google Wallet API Issuer"
+   - Create a new Service Account
+   - Grant "Google Wallet API Issuer" role
 
-4. **Получить JSON ключ**:
-   - Создайте ключ для Service Account
-   - Скачайте JSON файл
-   - Сохраните как `./certs/google-service-account.json`
+4. **Obtain JSON key**:
+   - Create a key for the Service Account
+   - Download the JSON file
+   - Save as `./certs/google-service-account.json`
 
-5. **Получить Issuer ID**:
-   - Перейдите в [Google Pay & Wallet Console](https://pay.google.com/business/console)
-   - Скопируйте ваш Issuer ID
+5. **Get Issuer ID**:
+   - Go to [Google Pay & Wallet Console](https://pay.google.com/business/console)
+   - Copy your Issuer ID
 
-6. **Создать Loyalty Class** (опционально, можно через API):
-   - В Google Pay & Wallet Console создайте Loyalty Class
-   - Или запустите приложение, и класс создастся автоматически
+6. **Create Loyalty Class** (optional, can be done via API):
+   - Create a Loyalty Class in Google Pay & Wallet Console
+   - Or launch the app and the class will be created automatically
 
-### 5. Запуск приложения
+### 5. Run the Application
 
 ```bash
-# Режим разработки (с автоперезагрузкой)
+# Development mode (with auto-reload)
 npm run dev
 
-# Или обычный запуск
+# Or standard launch
 npm start
 ```
 
-Приложение будет доступно по адресу: http://localhost:3000
+The application will be available at: http://localhost:3000
 
-## Использование
+## Usage
 
-### Для клиентов
+### For Customers
 
-1. Откройте http://localhost:3000
-2. Заполните форму регистрации (имя, фамилия, email, телефон)
-3. После регистрации получите ссылки на добавление карты в Apple Wallet или Google Wallet
-4. Добавьте карту в свой кошелёк
-5. Предъявляйте карту при каждой покупке
+1. Open http://localhost:3000
+2. Fill out the registration form (first name, last name, email, phone)
+3. After registration, get links to add the card to Apple Wallet or Google Wallet
+4. Add the card to your wallet
+5. Present the card with each purchase
 
-### Для администраторов
+### For Administrators
 
-1. Откройте http://localhost:3000/admin
-2. Просматривайте список всех зарегистрированных клиентов
-3. Используйте поиск для быстрого нахождения клиента
-4. Нажмите "Добавить покупку" для записи транзакции
-5. Скидка применяется автоматически, карта обновляется
+1. Open http://localhost:3000/admin
+2. View the list of all registered customers
+3. Use search to quickly find a customer
+4. Click "Add Purchase" to record a transaction
+5. Discount is applied automatically, card updates automatically
 
-### QR-код для регистрации
+### QR Code for Registration
 
-В админ-панели есть QR-код, который можно:
-- Распечатать и разместить в ресторане
-- Отправить клиентам
-- Разместить на сайте или в социальных сетях
+The admin panel has a QR code that can be:
+- Printed and placed in the restaurant
+- Sent to customers
+- Posted on website or social media
 
 ## API Endpoints
 
-### Регистрация пользователя
+### Register User
 ```
 POST /api/register
 Body: { email, phone, first_name, last_name }
 ```
 
-### Получить пользователя
+### Get User
 ```
 GET /api/user/:id
 GET /api/user/card/:serial
 ```
 
-### Добавить транзакцию
+### Add Transaction
 ```
 POST /api/transaction
 Body: { user_id, amount, description }
 ```
 
-### Получить транзакции пользователя
+### Get User Transactions
 ```
 GET /api/transactions/:userId
 ```
 
-### Получить всех пользователей
+### Get All Users
 ```
 GET /api/users
 ```
 
-### Получить QR-код регистрации
+### Get Registration QR Code
 ```
 GET /api/qr/registration
 ```
 
-## Структура проекта
+## Project Structure
 
 ```
 wallet_app/
-├── server.js                 # Основной сервер
-├── database.js              # Работа с базой данных
-├── apple-wallet.js          # Генерация Apple Wallet passes
-├── google-wallet.js         # Генерация Google Wallet passes
-├── package.json             # Зависимости
-├── .env                     # Конфигурация (не в git)
-├── .env.example            # Пример конфигурации
-├── certs/                   # Сертификаты (не в git)
+├── server.js                 # Main server
+├── database.js              # Database operations
+├── apple-wallet.js          # Apple Wallet pass generation
+├── google-wallet.js         # Google Wallet pass generation
+├── package.json             # Dependencies
+├── .env                     # Configuration (not in git)
+├── .env.example            # Configuration example
+├── certs/                   # Certificates (not in git)
 │   ├── WWDR.pem
 │   ├── signerCert.pem
 │   ├── signerKey.pem
 │   └── google-service-account.json
-├── apple-pass-model/        # Шаблон Apple Pass
+├── apple-pass-model/        # Apple Pass template
 │   ├── pass.json
 │   ├── logo.png
 │   └── icon.png
-├── public/                  # Frontend файлы
-│   ├── index.html          # Форма регистрации
-│   └── admin.html          # Админ-панель
-├── passes/                  # Сгенерированные passes (не в git)
-└── database.sqlite         # База данных (не в git)
+├── public/                  # Frontend files
+│   ├── index.html          # Registration form
+│   └── admin.html          # Admin panel
+├── passes/                  # Generated passes (not in git)
+└── database.sqlite         # Database (not in git)
 ```
 
-## База данных
+## Database
 
-### Таблица users
-- `id` - UUID пользователя
-- `email` - Email (уникальный)
-- `phone` - Телефон
-- `first_name` - Имя
-- `last_name` - Фамилия
-- `total_spent` - Общая сумма покупок
-- `discount_percent` - Текущая скидка (3%, 5%, 10%, 15%)
-- `pass_serial` - Номер карты
-- `apple_pass_url` - URL для Apple Wallet
-- `google_pass_url` - URL для Google Wallet
-- `created_at` - Дата регистрации
-- `updated_at` - Дата последнего обновления
+### users Table
+- `id` - User UUID
+- `email` - Email (unique)
+- `phone` - Phone number
+- `first_name` - First name
+- `last_name` - Last name
+- `total_spent` - Total purchase amount
+- `discount_percent` - Current discount (3%, 5%, 10%, 15%)
+- `pass_serial` - Card number
+- `apple_pass_url` - URL for Apple Wallet
+- `google_pass_url` - URL for Google Wallet
+- `created_at` - Registration date
+- `updated_at` - Last update date
 
-### Таблица transactions
-- `id` - UUID транзакции
-- `user_id` - ID пользователя
-- `amount` - Сумма покупки (после применения скидки)
-- `discount_applied` - Размер примененной скидки
-- `description` - Описание покупки
-- `created_at` - Дата транзакции
+### transactions Table
+- `id` - Transaction UUID
+- `user_id` - User ID
+- `amount` - Purchase amount (after discount applied)
+- `discount_applied` - Discount amount applied
+- `description` - Purchase description
+- `created_at` - Transaction date
 
-## Безопасность
+## Security
 
-⚠️ **Важно**: Для продакшена:
+⚠️ **Important**: For production:
 
-1. Используйте HTTPS (обязательно для Apple Wallet и Google Wallet)
-2. Добавьте аутентификацию для админ-панели
-3. Используйте более безопасную базу данных (PostgreSQL, MySQL)
-4. Настройте CORS правильно
-5. Добавьте rate limiting для API
-6. Валидируйте все входящие данные
-7. Храните сертификаты в безопасном месте
+1. Use HTTPS (required for Apple Wallet and Google Wallet)
+2. Add authentication for admin panel
+3. Use a more secure database (PostgreSQL, MySQL)
+4. Configure CORS properly
+5. Add rate limiting for API
+6. Validate all incoming data
+7. Store certificates in a secure location
 
-## Развертывание
+## Deployment
 
-### 🚀 Быстрый старт с ngrok (для тестирования)
-
-```bash
-# 1. Установите ngrok
-brew install ngrok/ngrok/ngrok
-
-# 2. Получите токен: https://dashboard.ngrok.com/get-started/your-authtoken
-ngrok config add-authtoken YOUR_TOKEN
-
-# 3. Запустите сервер
-npm start
-
-# 4. В другом терминале запустите ngrok
-ngrok http 3000
-
-# 5. Обновите BASE_URL в .env на полученный URL
-# Например: https://abc-123.ngrok-free.dev
-```
-
-**Готово!** Ваш сайт доступен в интернете через HTTPS! 🎉
-
-Подробнее: [DEPLOYMENT.md](DEPLOYMENT.md)
-
-### 💻 Продакшен на VPS
-
-**Рекомендуемые провайдеры:**
-- [DigitalOcean](https://digitalocean.com) ($5/мес)
-- [Timeweb](https://timeweb.com) (от 299₽/мес)
-- [Vultr](https://vultr.com) ($5/мес)
-
-**Быстрая установка (Ubuntu 22.04):**
-
-```bash
-# Установка Node.js и зависимостей
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs git
-
-# Клонирование и настройка
-git clone https://github.com/Sneckpro/sneksy.git
-cd sneksy
-npm install
-cp .env.example .env
-nano .env  # Заполните настройки
-
-# PM2 для автозапуска
-sudo npm install -g pm2
-pm2 start server.js --name wallet-app
-pm2 startup
-pm2 save
-
-# Nginx + SSL
-sudo apt install nginx certbot python3-certbot-nginx -y
-# Настройте Nginx (см. DEPLOYMENT.md)
-sudo certbot --nginx -d your-domain.com
-```
-
-Полная инструкция: [DEPLOYMENT.md](DEPLOYMENT.md)
-
-### ☁️ Автоматический деплой
+### Automated Deployment
 
 **Railway.app / Render.com:**
-1. Подключите GitHub репозиторий
-2. Настройте переменные окружения
-3. Деплой происходит автоматически
+1. Connect your GitHub repository
+2. Configure environment variables
+3. Deployment happens automatically
 
-Подробнее: [DEPLOYMENT.md](DEPLOYMENT.md)
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md)
 
-## Поддержка
+## Support
 
-Если у вас возникли вопросы или проблемы:
-1. Проверьте логи: `console.log` в коде
-2. Убедитесь, что все сертификаты настроены правильно
-3. Проверьте переменные окружения в .env
-
-## Лицензия
-
-MIT
-
-## Автор
-
-Разработано с помощью Claude Code
+If you have questions or issues:
+1. Check logs: `console.log` in code
+2. Make sure all certificates are configured correctly
+3. Check environment variables in .env

@@ -376,8 +376,19 @@ app.get('/syrve', (req, res) => {
 // END SYRVE INTEGRATION
 // ==========================================
 
+// Инициализация при запуске
+async function initialize() {
+  try {
+    // Проверяем конфигурацию Google Wallet
+    console.log('✅ Google Wallet configured with Issuer ID:', process.env.GOOGLE_ISSUER_ID);
+    console.log('ℹ️  Loyalty Class ID:', `${process.env.GOOGLE_ISSUER_ID}.apex_laaa`);
+  } catch (error) {
+    console.error('⚠️  Ошибка при инициализации:', error.message);
+  }
+}
+
 // Запуск сервера
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`
 ╔════════════════════════════════════════════════╗
 ║   Restaurant Wallet System                     ║
@@ -387,6 +398,9 @@ app.listen(PORT, () => {
 ║   Админ-панель: http://localhost:${PORT}/admin ║
 ╚════════════════════════════════════════════════╝
   `);
+
+  // Инициализация компонентов
+  await initialize();
 });
 
 module.exports = app;

@@ -1,6 +1,7 @@
 const { google } = require('googleapis');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const axios = require('axios');
 
 // Инициализация Google Wallet API
 let credentials = null;
@@ -19,37 +20,83 @@ function initializeGoogleWallet() {
 // Создание класса карты (нужно создать только один раз)
 async function createLoyaltyClass() {
   if (!credentials) {
+    initializeGoogleWallet();
+  }
+
+  if (!credentials) {
     throw new Error('Google credentials not configured');
   }
 
-  const classId = `${process.env.GOOGLE_ISSUER_ID}.loyalty_class`;
+  const classId = `${process.env.GOOGLE_ISSUER_ID}.apex_laaa`;
 
-  const loyaltyClass = {
-    id: classId,
-    issuerName: process.env.RESTAURANT_NAME || 'Ресторан',
-    reviewStatus: 'UNDER_REVIEW',
-    programName: 'Программа лояльности',
-    programLogo: {
-      sourceUri: {
-        uri: `${process.env.BASE_URL}/images/logo.png`
-      }
-    },
-    hexBackgroundColor: '#000000',
-    localizedIssuerName: {
-      defaultValue: {
-        language: 'ru',
-        value: process.env.RESTAURANT_NAME || 'Ресторан'
-      }
-    },
-    localizedProgramName: {
-      defaultValue: {
-        language: 'ru',
-        value: 'Программа лояльности'
+  try {
+    // Получаем токен доступа
+    const auth = new google.auth.GoogleAuth({
+      credentials: credentials,
+      scopes: ['https://www.googleapis.com/auth/wallet_object.issuer']
+    });
+
+    const client = await auth.getClient();
+    const accessToken = await client.getAccessToken();
+
+    // Проверяем, существует ли класс
+    try {
+      await axios.get(
+        `https://walletobjects.googleapis.com/walletobjects/v1/loyaltyClass/${classId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken.token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('✅ Loyalty Class already exists:', classId);
+      return classId;
+    } catch (error) {
+      // Класс не существует, создаем его
+      if (error.response && error.response.status === 404) {
+        const loyaltyClass = {
+          id: classId,
+          issuerName: process.env.RESTAURANT_NAME || 'Ресторан',
+          reviewStatus: 'UNDER_REVIEW',
+          programName: 'Программа лояльности',
+          hexBackgroundColor: '#4285f4',
+          localizedIssuerName: {
+            defaultValue: {
+              language: 'ru',
+              value: process.env.RESTAURANT_NAME || 'Ресторан'
+            }
+          },
+          localizedProgramName: {
+            defaultValue: {
+              language: 'ru',
+              value: 'Программа лояльности'
+            }
+          }
+        };
+
+        await axios.post(
+          `https://walletobjects.googleapis.com/walletobjects/v1/loyaltyClass`,
+          loyaltyClass,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken.token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        console.log('✅ Loyalty Class created:', classId);
+        return classId;
+      } else {
+        throw error;
       }
     }
-  };
-
-  return classId;
+  } catch (error) {
+    console.error('❌ Error creating Loyalty Class:', error.response?.data || error.message);
+    throw error;
+  }
 }
 
 // Генерация Google Wallet Pass (JWT)
@@ -63,7 +110,7 @@ async function generateGooglePass(userData) {
       throw new Error('Google credentials not configured');
     }
 
-    const classId = `${process.env.GOOGLE_ISSUER_ID}.loyalty_class`;
+    const classId = `${process.env.GOOGLE_ISSUER_ID}.apex_laaa`;
     const objectId = `${process.env.GOOGLE_ISSUER_ID}.${userData.pass_serial}`;
 
     // Создаем объект карты лояльности
